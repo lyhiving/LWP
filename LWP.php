@@ -1,6 +1,6 @@
 <?php
 /**
- * UTeng PHP Framework
+ * Lazy Work with PHP
  *
  * @author Lukin <my@lukin.cn>
  * @version $Id$
@@ -387,7 +387,7 @@ function apply_filters($tag, $value) {
 }
 
 /**
- * UTeng PHP Framework App Class
+ * LWP App Class
  */
 final class App {
     // app begin memory usage
@@ -536,7 +536,7 @@ final class App {
     // route matches
     private $route_matches = array();
     /**
-     * UTeng PHP framework run
+     * LWP run
      *
      * @param array|null $route_pairs
      * @return App
@@ -781,7 +781,7 @@ final class App {
 }
 
 /**
- * UTeng PHP Framework Exception
+ * LWP Exception
  */
 class LWP_Exception extends Exception {
     /**
