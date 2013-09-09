@@ -129,7 +129,7 @@ function get_config($name=null, $file='common') {
                 '^LWP_Lib_Base$' => LWP_PATH . '/lib/Base.php',
                 '^LWP_Page_Handler$' => LWP_PATH . '/page/Handler.php',
                 '^(KVCache|FCache|MCache)$' => LWP_PATH . '/lib/cache/$1.php',
-                '^(DBQuery|MailDecode|Markdown|Pagebreak|Cookie|PHPMailer|SMTP|UCache|Logger|Validate|Upload|QQWry|Image|Httplib)$' => LWP_PATH . '/lib/$1.php',
+                '^(DBQuery|MailDecode|MarkdownExtra|Markdown|Pagebreak|Cookie|PHPMailer|SMTP|UCache|Logger|Validate|Upload|QQWry|Image|Httplib)$' => LWP_PATH . '/lib/$1.php',
             ),
             // app route rules
             'app_routes' => array(),

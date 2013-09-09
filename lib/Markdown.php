@@ -51,11 +51,11 @@ class Markdown {
 
         $this->nested_brackets_re =
             str_repeat('(?>[^\[\]]+|\[', $this->nested_brackets_depth).
-                str_repeat('\])*', $this->nested_brackets_depth);
+            str_repeat('\])*', $this->nested_brackets_depth);
 
         $this->nested_url_parenthesis_re =
             str_repeat('(?>[^()\s]+|\(', $this->nested_url_parenthesis_depth).
-                str_repeat('(?>\)))*', $this->nested_url_parenthesis_depth);
+            str_repeat('(?>\)))*', $this->nested_url_parenthesis_depth);
 
         $this->escape_chars_re = '['.preg_quote($this->escape_chars).']';
 
@@ -240,15 +240,15 @@ class Markdown {
 					  />
 					|
 					  >', $nested_tags_level).	# end of opening tag
-                '.*?'.					# last level nested tag content
-                str_repeat('
+            '.*?'.					# last level nested tag content
+            str_repeat('
 					  </\2\s*>	# closing nested tag
 					)
 				  |
 					<(?!/\2\s*>	# other tags with a different name
 				  )
 				)*',
-                    $nested_tags_level);
+                $nested_tags_level);
         $content2 = str_replace('\2', '\3', $content);
 
         # First, look for nested blocks, e.g.:
@@ -1170,41 +1170,6 @@ class Markdown {
                 $graf = $value;
                 $block = $this->html_hashes[$graf];
                 $graf = $block;
-//				if (preg_match('{
-//					\A
-//					(							# $1 = <div> tag
-//					  <div  \s+
-//					  [^>]*
-//					  \b
-//					  markdown\s*=\s*  ([\'"])	#	$2 = attr quote char
-//					  1
-//					  \2
-//					  [^>]*
-//					  >
-//					)
-//					(							# $3 = contents
-//					.*
-//					)
-//					(</div>)					# $4 = closing tag
-//					\z
-//					}xs', $block, $matches))
-//				{
-//					list(, $div_open, , $div_content, $div_close) = $matches;
-//
-//					# We can't call Markdown(), because that resets the hash;
-//					# that initialization code should be pulled into its own sub, though.
-//					$div_content = $this->hashHTMLBlocks($div_content);
-//
-//					# Run document gamut methods on the content.
-//					foreach ($this->document_gamut as $method => $priority) {
-//						$div_content = $this->$method($div_content);
-//					}
-//
-//					$div_open = preg_replace(
-//						'{\smarkdown\s*=\s*([\'"]).+?\1}', '', $div_open);
-//
-//					$graf = $div_open . "\n" . $div_content . "\n" . $div_close;
-//				}
                 $grafs[$key] = $graf;
             }
         }
