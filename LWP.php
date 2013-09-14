@@ -595,7 +595,7 @@ final class App {
             array_unshift($this->route_matches, $this->uri);
         }
         // 自动添加 Handler
-        if (substr_compare($handler, 'Handler', -7, 7) !== 0) {
+        if (!IS_CLI && substr_compare($handler, 'Handler', -7, 7) !== 0) {
             $handler .= 'Handler';
         }
         // dispatch
@@ -623,7 +623,7 @@ final class App {
                 // 初始化类
                 $handle = new $handler();
                 // 执行方式
-                $method = apply_filters('apprun_method', IS_CLI ? 'get' : strtolower($_SERVER['REQUEST_METHOD']));
+                $method = apply_filters('apprun_method', IS_CLI ? 'main' : strtolower($_SERVER['REQUEST_METHOD']));
                 // arguments
                 $arguments = $this->route_matches ? $this->route_matches : array();
                 // 类可以访问
