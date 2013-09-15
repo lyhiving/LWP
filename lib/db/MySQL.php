@@ -21,7 +21,7 @@ class DB_MySQL extends DBQuery {
      */
     public function __construct($config) {
         if (!function_exists('mysql_query')) {
-            upf_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'MySQL'));
+            upf_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'MySQL'), LOGGER_FATAL);
         }
         if (!empty($config)) {
             $this->host     = isset($config['host']) ? $config['host'] : $this->host;
@@ -45,7 +45,7 @@ class DB_MySQL extends DBQuery {
     public function connect(){
         // 检验数据库链接参数
         if (!$this->host || !$this->user)
-            upf_error(__('数据库连接错误，请检查数据库设置！'));
+            upf_error(__('数据库连接错误，请检查数据库设置！'), LOGGER_FATAL);
         // 连接数据库
         if (function_exists('mysql_pconnect') && $this->pconnect) {
             $this->conn = mysql_pconnect($this->host,$this->user,$this->pwd,CLIENT_MULTI_RESULTS);
@@ -55,7 +55,7 @@ class DB_MySQL extends DBQuery {
                 
         // 验证连接是否正确
         if (!$this->conn) {
-            upf_error(sprintf(__('数据库链接错误：%s'), mysql_error()));
+            upf_error(sprintf(__('数据库链接错误：%s'), mysql_error()), LOGGER_FATAL);
         }
         return $this->conn;
     }
@@ -72,7 +72,7 @@ class DB_MySQL extends DBQuery {
         if (empty($db)) $db = $this->name;
         // 选择数据库
         if (!mysql_select_db($db,$this->conn)) {
-            upf_error(sprintf(__('%s 数据库不存在！'),$db));
+            upf_error(sprintf(__('%s 数据库不存在！'),$db), LOGGER_FATAL);
         }
         // MYSQL数据库的设置
         if (version_compare($this->version(), '4.1', '>=')) {
@@ -82,7 +82,7 @@ class DB_MySQL extends DBQuery {
                 mysql_query("SET sql_mode='';", $this->conn);
             }
         } else {
-            upf_error(__('MySQL数据库版本低于4.1，请升级MySQL！'));
+            upf_error(__('MySQL数据库版本低于4.1，请升级MySQL！'), LOGGER_WARN);
         }
                 
         return true;
@@ -96,7 +96,7 @@ class DB_MySQL extends DBQuery {
     public function query($sql){
         // 验证连接是否正确
         if (!$this->conn) {
-            upf_error(__('提供的参数不是一个有效的MySQL的链接资源。'));
+            upf_error(__('提供的参数不是一个有效的MySQL的链接资源。'), LOGGER_ERROR);
         }
         $args = func_get_args();
                 
@@ -121,7 +121,7 @@ class DB_MySQL extends DBQuery {
             } else {
                 // 重置计数
                 $this->goneaway = 3;
-                upf_error(sprintf(__('MySQL 查询错误：%s'), $sql . "\r\n\t" . mysql_error($this->conn)));
+                upf_error(sprintf(__('MySQL 查询错误：%s'), $sql . "\r\n\t" . mysql_error($this->conn)), LOGGER_ERROR);
             }
         }
         // 记录sql执行日志

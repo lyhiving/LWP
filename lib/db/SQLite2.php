@@ -16,7 +16,7 @@ class DB_SQLite2 extends DBQuery {
      */
     public function __construct($config) {
         if (!function_exists('sqlite_query')) {
-            upf_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'SQLite2'));
+            upf_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'SQLite2'),LOGGER_FATAL);
         }
         if (!empty($config)) {
             $this->name     = isset($config['name']) ? $config['name'] : $this->name;
@@ -44,11 +44,11 @@ class DB_SQLite2 extends DBQuery {
                 $this->conn = sqlite_open($dbname, $mode, $error);
             }
         } else {
-            upf_error(__('数据库不存在！'));
+            upf_error(__('数据库不存在！'),LOGGER_FATAL);
         }
         // 验证连接是否正确
         if (!$this->conn) {
-            upf_error(sprintf(__('数据库链接错误：%s'), $error));
+            upf_error(sprintf(__('数据库链接错误：%s'), $error),LOGGER_FATAL);
         }
         // 设置10秒等待
         sqlite_busy_timeout($this->conn, 1500);
@@ -79,7 +79,7 @@ class DB_SQLite2 extends DBQuery {
     public function query($sql){
         // 验证连接是否正确
         if (!$this->conn) {
-            upf_error(__('提供的参数不是一个有效的SQLite的链接资源。'));
+            upf_error(__('提供的参数不是一个有效的SQLite的链接资源。'),LOGGER_ERROR);
         }
         $args = func_get_args();
 
@@ -98,7 +98,7 @@ class DB_SQLite2 extends DBQuery {
         DBQuery::$query_count++;
         // 执行SQL
         if (!($result = $func($this->conn, $sql))) {
-            upf_error(sprintf(__('SQLite 查询错误：%s'),$sql."\r\n\t".sqlite_error_string(sqlite_last_error($this->conn))));
+            upf_error(sprintf(__('SQLite 查询错误：%s'),$sql."\r\n\t".sqlite_error_string(sqlite_last_error($this->conn))),LOGGER_ERROR);
         }
         // 查询正常
         else {

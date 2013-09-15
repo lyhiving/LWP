@@ -61,13 +61,14 @@ if (defined('TIME_ZONE')) {
     }
 }
 // Logger const variable
-define('LOGGER_OFF',    0); // Nothing at all.
-define('LOGGER_DEBUG',  1); // Most Verbose
-define('LOGGER_INFO',   2); // ...
-define('LOGGER_WARN',   3); // ...
-define('LOGGER_ERROR',  4); // ...
-define('LOGGER_FATAL',  5); // ...
-define('LOGGER_LOG',    6); // Least Verbose
+// 调试输出，不记录
+define('LOGGER_DEBUG',  100); // 调试输出
+define('LOGGER_INFO',   200); // 业务输出
+// 严重错误，必须记录
+define('LOGGER_WARN',   300); // 警告信息
+define('LOGGER_ERROR',  400); // 发生错误，但不影响系统运行
+define('LOGGER_FATAL',  500); // 发生严重错误，系统运行中断
+
 // register autoload
 spl_autoload_register(array('App', '__autoload'));
 // process lib Variable
@@ -247,7 +248,7 @@ function load_config($file, $super=null) {
  * @param int $errno
  * @return void
  */
-function upf_error($error, $errno = 100) {
+function upf_error($error, $errno) {
     if (error_reporting() == 0) return false;
     throw new LWP_Exception($error, $errno);
 }
@@ -1191,6 +1192,41 @@ function instr($needle,$haystack){
     if (empty($haystack)) { return false; }
     if (!is_array($haystack)) $haystack = explode(',',$haystack);
     return in_array($needle,$haystack);
+}
+
+/**
+ * 快速查找
+ *
+ * 利用二分法快速查找
+ *
+ * @param array $haystack
+ * @param string $needle
+ * @param bool $find_gap
+ * @return bool|int
+ */
+function fast_find($haystack, $needle, $find_gap = false) {
+    $start = 0;
+    $index = -1;
+    $end = count($haystack) - 1;
+    $is_have = false;
+
+    while ($start <= $end) {
+        $index = intval(($start + $end) / 2);
+        if (floatval($needle) == floatval(trim($haystack[$index]))) {
+            $is_have = true;
+            break;
+        } elseif (floatval($needle) < floatval(trim($haystack[$index]))) {
+            $end = --$index;
+        } elseif (floatval($needle) > floatval(trim($haystack[$index]))) {
+            $start = ++$index;
+        }
+    }
+    if ($find_gap) {
+        return $index;
+    } else {
+        return $is_have ? $index : $is_have;
+    }
+
 }
 /**
  * converts a UTF8-string into HTML entities

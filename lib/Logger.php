@@ -9,10 +9,10 @@
 
 class Logger {
 
-    private $format	= 'Y-m-d H:i:s';
+    private $format	= 'Y/m/d H:i:s';
     private $queue  = array();
 
-    private $priority;
+    private $switch = false;
     private $allowIPs, $isAllowed;
         
     // Logger instance
@@ -25,22 +25,13 @@ class Logger {
      */
     public static function &instance() {
         if (!self::$instance) {
-            $level = get_config('logger_level');
-            if (!$level) {
-                if (isset($_GET['debug'])) {
-                    $level = $_GET['debug']; Cookie::set('debug', $level);
-                } else {
-                    $level = Cookie::get('debug');
-                }
-                if (!$level) $level = LOGGER_OFF;
-            }
-            self::$instance = new Logger($level, get_config('logger_allowIPs'));
+            self::$instance = new Logger(get_config('logger_allowIPs'));
         }
         return self::$instance;
     }
 
-    public function __construct($priority, $allowIPs = null) {
-        $this->priority = $priority;
+    public function __construct($allowIPs = null) {
+        $this->switch = get_config('logger_switch');
         if (IS_CLI) {
             $this->isAllowed = true;
         } else {
@@ -55,9 +46,19 @@ class Logger {
             } elseif (is_string($allowIPs)) {
                 array_unshift($this->allowIPs, $allowIPs);
             }
-            $this->isAllowed = $this->isAllowed();
 
-            App::instance()->register_shutdown(array(&$this, 'trace'));
+
+            if (isset($_REQUEST['debug'])) {
+                $level = $_REQUEST['debug'];
+                Cookie::set('debug', $level);
+            } else {
+                $level = Cookie::get('debug');
+            }
+            // 获取到参数，才执行debug
+            if ($level) {
+                $this->isAllowed = $this->isAllowed();
+                App::instance()->register_shutdown(array(&$this, 'trace'));
+            }
         }
     }
     /**
@@ -101,12 +102,12 @@ class Logger {
         }
     }
 
-    public function info($line) {
-        $this->log($line, LOGGER_INFO);
-    }
-
     public function debug($line) {
         $this->log($line, LOGGER_DEBUG);
+    }
+
+    public function info($line) {
+        $this->log($line, LOGGER_INFO);
     }
 
     public function warn($line) {
@@ -121,29 +122,30 @@ class Logger {
         $this->log($line, LOGGER_FATAL);
     }
 
-    public function log($line, $priority = LOGGER_LOG) {
-        if ($this->isAllowed && $this->priority <= $priority && $this->priority != LOGGER_OFF) {
+    private function log($line, $priority) {
+        if ($this->isAllowed && $this->switch) {
             $time = date($this->format);
 
             switch ($priority) {
-                case LOGGER_INFO:
-                    $status = $time.' - [INFO]  --> '; break;
-                case LOGGER_WARN:
-                    $status = $time.' - [WARN]  --> '; break;
                 case LOGGER_DEBUG:
-                    $status = $time.' - [DEBUG] --> '; break;
+                    $status = '['.$time.'] '.LOGGER_DEBUG.' -> '; break;
+                case LOGGER_INFO:
+                    $status = '['.$time.'] '.LOGGER_INFO.' -> '; break;
+                case LOGGER_WARN:
+                    $status = '['.$time.'] '.LOGGER_WARN.' -> '; break;
                 case LOGGER_ERROR:
-                    $status = $time.' - [ERROR] --> '; break;
+                    $status = '['.$time.'] '.LOGGER_ERROR.' -> '; break;
                 case LOGGER_FATAL:
-                    $status = $time.' - [FATAL] --> '; break;
-                default:
-                    $status = $time.' - [LOG]   --> '; break;
+                    $status = '['.$time.'] '.LOGGER_FATAL.' -> '; break;
             }
 
             // 不是标量
             if (!is_scalar($line)) {
                 $line = print_r($line, true);
             }
+
+            // TODO 记录 WARN/ERROR/FATAL 类型日志到文件
+
             // 命令行模式直接输出
             if (IS_CLI) {
                 e($status.$line."\n");
