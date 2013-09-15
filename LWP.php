@@ -279,8 +279,8 @@ function upf_handler_error(&$e) {
         $log = sprintf("%s\r\n", $message);
         $log.= sprintf("[File]:\r\n\t%s (%d)\r\n", $error['file'], $error['line']);
         $log.= sprintf("[Trace]:\r\n%s\r\n", $e->getStackTrace());
-        // handler error
-        apply_filters('upf_handler_error', $code, $log);
+        // 调用Logger处理类
+        Logger::instance()->log($log, $code);
     }
 
     $data = $e->getData();

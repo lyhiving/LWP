@@ -122,7 +122,7 @@ class Logger {
         $this->log($line, LOGGER_FATAL);
     }
 
-    private function log($line, $priority) {
+    public function log($line, $priority) {
         if ($this->isAllowed && $this->switch) {
             $time = date($this->format);
 
