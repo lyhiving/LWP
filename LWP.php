@@ -69,8 +69,6 @@ define('LOGGER_WARN',   300); // 警告信息
 define('LOGGER_ERROR',  400); // 发生错误，但不影响系统运行
 define('LOGGER_FATAL',  500); // 发生严重错误，系统运行中断
 
-
-
 // register autoload
 spl_autoload_register(array('App', '__autoload'));
 // process lib Variable
