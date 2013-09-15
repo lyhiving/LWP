@@ -61,13 +61,14 @@ if (defined('TIME_ZONE')) {
     }
 }
 // Logger const variable
-// 严重错误，必须记录
-define('LOGGER_WARN',   100); // 警告信息
-define('LOGGER_ERROR',  200); // 发生错误，但不影响系统运行
-define('LOGGER_FATAL',  300); // 发生严重错误，系统运行中断
 // 调试输出，不记录
-define('LOGGER_DEBUG',  400); // 调试输出
-define('LOGGER_INFO',   500); // 业务输出
+define('LOGGER_DEBUG',  100); // 调试输出
+define('LOGGER_INFO',   200); // 业务输出
+// 严重错误，必须记录
+define('LOGGER_WARN',   300); // 警告信息
+define('LOGGER_ERROR',  400); // 发生错误，但不影响系统运行
+define('LOGGER_FATAL',  500); // 发生严重错误，系统运行中断
+
 
 
 // register autoload
