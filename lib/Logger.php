@@ -152,6 +152,8 @@ class Logger {
             } else {
                 $this->queue[] = $status.$line."\n";
             }
+            return true;
         }
+        return false;
     }
 }

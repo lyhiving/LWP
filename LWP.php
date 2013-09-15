@@ -271,6 +271,7 @@ function quit($data = null, $errno = LOGGER_INFO) {
  */
 function upf_handler_error(&$e) {
     $code = $e->getCode();
+    $data = $e->getData();
     $message = $e->getMessage();
     // 这个等级的错误，必须全部记录
     if (in_array($code, array(LOGGER_WARN, LOGGER_ERROR, LOGGER_FATAL))) {
@@ -279,10 +280,12 @@ function upf_handler_error(&$e) {
         $log.= sprintf("[File]:\r\n\t%s (%d)\r\n", $error['file'], $error['line']);
         $log.= sprintf("[Trace]:\r\n%s\r\n", $e->getStackTrace());
         // 调用Logger处理类
-        Logger::instance()->log($log, $code);
+        $no_echo = Logger::instance()->log($log, $code);
+        // 命令行模式
+        if (IS_CLI && $no_echo) $data = null;
     }
 
-    $data = $e->getData();
+
     // not null
     if ($data !== null) {
         if (!is_scalar($data)) {
@@ -296,6 +299,7 @@ function upf_handler_error(&$e) {
         }
         echo $data;
     }
+
 
 }
 /**
