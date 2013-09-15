@@ -82,7 +82,7 @@ class MailDecode
 
         $structure = $obj->mail_decode($obj->header, $obj->body);
         if ($structure === false) {
-            $structure = new LWP_Exception($obj->error);
+            $structure = new LWP_Exception($obj->error, LOGGER_WARN);
         }
 
         return $structure;
@@ -187,7 +187,7 @@ class MailDecode
                         list($part_header, $part_body) = $this->splitBodyHeader($parts[$i]);
                         $part = $this->mail_decode($part_header, $part_body, $default_ctype);
                         if($part === false)
-                            $part = new LWP_Exception($this->error);
+                            $part = new LWP_Exception($this->error, LOGGER_WARN);
                         $return->parts[] = $part;
                     }
                     break;

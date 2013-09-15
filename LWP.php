@@ -61,13 +61,14 @@ if (defined('TIME_ZONE')) {
     }
 }
 // Logger const variable
-// 调试输出，不记录
-define('LOGGER_DEBUG',  100); // 调试输出
-define('LOGGER_INFO',   200); // 业务输出
 // 严重错误，必须记录
-define('LOGGER_WARN',   300); // 警告信息
-define('LOGGER_ERROR',  400); // 发生错误，但不影响系统运行
-define('LOGGER_FATAL',  500); // 发生严重错误，系统运行中断
+define('LOGGER_WARN',   100); // 警告信息
+define('LOGGER_ERROR',  200); // 发生错误，但不影响系统运行
+define('LOGGER_FATAL',  300); // 发生严重错误，系统运行中断
+// 调试输出，不记录
+define('LOGGER_DEBUG',  400); // 调试输出
+define('LOGGER_INFO',   500); // 业务输出
+
 
 // register autoload
 spl_autoload_register(array('App', '__autoload'));
@@ -253,6 +254,17 @@ function upf_error($error, $errno) {
     throw new LWP_Exception($error, $errno);
 }
 /**
+ * exit as quit
+ *
+ * @throws LWP_Exception
+ * @param mixed $data
+ * @param int $errno
+ * @return void
+ */
+function quit($data = null, $errno = LOGGER_INFO) {
+    throw new LWP_Exception($data, $errno);
+}
+/**
  * catch exception
  *
  * @param LWP_Exception $e
@@ -260,57 +272,32 @@ function upf_error($error, $errno) {
  */
 function upf_handler_error(&$e) {
     $code = $e->getCode();
-    $data = $e->getMessage();
-    if ($code > 0) {
+    $message = $e->getMessage();
+    // 这个等级的错误，必须全部记录
+    if (in_array($code, array(LOGGER_WARN, LOGGER_ERROR, LOGGER_FATAL))) {
         $trace = $e->getTrace(); $error = $trace[0];
-        $log = sprintf("%s\r\n", $data);
+        $log = sprintf("%s\r\n", $message);
         $log.= sprintf("[File]:\r\n\t%s (%d)\r\n", $error['file'], $error['line']);
         $log.= sprintf("[Trace]:\r\n%s\r\n", $e->getStackTrace());
         // handler error
-        apply_filters('upf_handler_error', $log, 'logs');
-    } else {
-        $data = $e->getData();
-        // not null
-        if ($data !== null) {
-            if (!is_scalar($data)) {
-                if (is_xhr_request()) {
-                    if (is_accept_json())
-                        header('Content-Type: application/json; charset=utf-8');
-                    $data = json_encode($data);
-                    $data = apply_filters('upf_handler_error', $data, 'json');
-                } else {
-                    $data = print_r($data, true);
-                    $data = apply_filters('upf_handler_error', $data, 'text');
-                }
+        apply_filters('upf_handler_error', $code, $log);
+    }
+
+    $data = $e->getData();
+    // not null
+    if ($data !== null) {
+        if (!is_scalar($data)) {
+            if (is_xhr_request()) {
+                if (is_accept_json())
+                    header('Content-Type: application/json; charset=utf-8');
+                $data = json_encode($data);
+            } else {
+                $data = print_r($data, true);
             }
-            echo $data;
         }
+        echo $data;
     }
-}
-/**
- * exit as quit
- *
- * @throws LWP_Exception
- * @param mixed $data
- * @return void
- */
-function quit($data = null) {
-    if (func_num_args() >= 2) {
-        $args    = func_get_args();
-        $status  = array_shift($args);
-        $message = array_shift($args);
-        if ($args) {
-            $data = $args;
-            $data['status']  = $status;
-            $data['message'] = $message;
-        } else {
-            $data = array(
-                'status'  => $status,
-                'message' => $message,
-            );
-        }
-    }
-    throw new LWP_Exception($data);
+
 }
 /**
  * 添加过滤器
@@ -652,9 +639,9 @@ final class App {
                 header('HTTP/1.1 404 Not Found', true, 404);
                 if ($handler == 'HTTP404') {
                     if (IS_CLI) {
-                        quit('Error: '.$handler.'->run() Not Found');
+                        quit('Error: '.$handler.'->run() Not Found', LOGGER_ERROR);
                     } else {
-                        quit('<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL '.$this->get_uri().' was not found on this server.</p></body></html>');
+                        quit('<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL '.$this->get_uri().' was not found on this server.</p></body></html>', LOGGER_ERROR);
                     }
                 } else {
                     $this->dispatch('HTTP404');
@@ -797,7 +784,7 @@ class LWP_Exception extends Exception {
      * @param string $message
      * @param int $code
      */
-    public function __construct($message, $code = 0) {
+    public function __construct($message, $code) {
         $this->data = $message;
         if ($message !== null && !is_scalar($message)) {
             $message = sprintf('[%s]', ucfirst(gettype($message)));
@@ -1539,7 +1526,7 @@ function get_client_ip() {
  */
 function redirect($url, $status=302) {
     if (is_xhr_request()) {
-        quit(array( 'status'=> $status, 'location' => $url ));
+        quit(array( 'status'=> $status, 'location' => $url ), LOGGER_INFO);
     } else {
         if (!headers_sent()) header("Location: {$url}", true, $status);
         $html = '<!DOCTYPE html>';
@@ -1550,7 +1537,7 @@ function redirect($url, $status=302) {
         $html.= 'self.location.replace("' . addcslashes($url, "'") . '");';
         $html.= '</script>';
         $html.= '</head><body></body></html>';
-        quit($html);
+        quit($html, LOGGER_INFO);
     }
 }
 /**

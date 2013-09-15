@@ -141,6 +141,6 @@ abstract class LWP_Page_Handler {
         }
         call_user_func_array(array(&$this, $method), $args);
         $the_body = ob_block_end('body');
-        quit($the_body);
+        quit($the_body, LOGGER_INFO);
     }
 }

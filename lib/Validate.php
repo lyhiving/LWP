@@ -152,7 +152,7 @@ class Validate {
         if (empty($this->errors)) {
             return true;
         } else {
-            quit(array('status' => 'validate', 'errors' => $this->errors));
+            quit(array('status' => 'validate', 'errors' => $this->errors), LOGGER_INFO);
         }
     }
     /**
