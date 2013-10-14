@@ -956,7 +956,9 @@ class MarkdownExtra extends Markdown {
     }
 
     protected function _doHeaders_anchor($text) {
-        $result = $text;
+        $text = trim($text);
+        $arr = preg_split('/\s/', $text);
+        $result = $arr[0];
         $count = $this->anchors[$text];
         if ($count == 0) {
             $this->anchors[$text] = 0;
