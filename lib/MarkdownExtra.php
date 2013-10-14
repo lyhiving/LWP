@@ -954,15 +954,17 @@ class MarkdownExtra extends Markdown {
 
         return $text;
     }
+
     protected function _doHeaders_anchor($text) {
-        $count = count($this->anchors[$text]);
+        $result = $text;
+        $count = $this->anchors[$text];
         if ($count == 0) {
             $this->anchors[$text] = 0;
         } else {
-            $text.= '-'.$count;
+            $result.= '-'.$count;
         }
         $this->anchors[$text]++;
-        return $text;
+        return $result;
     }
     protected function _doHeaders_callback_setext($matches) {
         if ($matches[3] == '-' && preg_match('{^- }', $matches[1]))
