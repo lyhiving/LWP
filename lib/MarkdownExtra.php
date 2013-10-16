@@ -35,8 +35,6 @@ class MarkdownExtra extends Markdown {
     # Predefined abbreviations.
     public $predef_abbr = array();
 
-    protected $anchors = array();
-
 
     ### Parser Implementation ###
 
@@ -88,7 +86,6 @@ class MarkdownExtra extends Markdown {
         #
         parent::setup();
 
-        $this->anchors = array();
         $this->footnotes = array();
         $this->footnotes_ordered = array();
         $this->footnotes_ref_count = array();
@@ -109,7 +106,6 @@ class MarkdownExtra extends Markdown {
         #
         # Clearing Extra-specific variables.
         #
-        $this->anchors = array();
         $this->footnotes = array();
         $this->footnotes_ordered = array();
         $this->footnotes_ref_count = array();
@@ -954,36 +950,18 @@ class MarkdownExtra extends Markdown {
 
         return $text;
     }
-
-    protected function _doHeaders_anchor($text) {
-        $text = trim($text);
-        $arr = preg_split('/\s/', $text);
-        $result = $arr[0];
-        $count = $this->anchors[$text];
-        if ($count == 0) {
-            $this->anchors[$text] = 0;
-        } else {
-            $result.= '-'.$count;
-        }
-        $this->anchors[$text]++;
-        return $result;
-    }
     protected function _doHeaders_callback_setext($matches) {
         if ($matches[3] == '-' && preg_match('{^- }', $matches[1]))
             return $matches[0];
         $level = $matches[3]{0} == '=' ? 1 : 2;
         $attr  = $this->doExtraAttributes("h$level", $dummy =& $matches[2]);
-        $text = $this->runSpanGamut($matches[1]);
-        $anchor = $this->_doHeaders_anchor($text);
-        $block = "<h$level$attr><a class=\"anchor\" name=\"".$anchor."\" href=\"#".$anchor."\"></a>".$text."</h$level>";
+        $block = "<h$level$attr>".$this->runSpanGamut($matches[1])."</h$level>";
         return "\n" . $this->hashBlock($block) . "\n\n";
     }
     protected function _doHeaders_callback_atx($matches) {
         $level = strlen($matches[1]);
         $attr  = $this->doExtraAttributes("h$level", $dummy =& $matches[3]);
-        $text = $this->runSpanGamut($matches[2]);
-        $anchor = $this->_doHeaders_anchor($text);
-        $block = "<h$level$attr><a class=\"anchor\" name=\"".$anchor."\" href=\"#".$anchor."\"></a>".$text."</h$level>";
+        $block = "<h$level$attr>".$this->runSpanGamut($matches[2])."</h$level>";
         return "\n" . $this->hashBlock($block) . "\n\n";
     }
 
