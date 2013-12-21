@@ -1,0 +1,44 @@
+/* common style
+-----------------------------------------------------------------------------*/
+body{ background-color: #F8F8F8; }
+
+/* 连接样式 */
+a:link,a:visited  { color: #333333; text-decoration: none; }
+a:hover, a:active { text-decoration: underline; }
+
+/* http://sonspring.com/journal/clearing-floats */
+.clear { clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height: 0; }
+
+/* tooltip.css
+------------------------------------------------------------------------------*/
+.tooltip { width:auto; height: auto; position: absolute; display: none; top:-9999px; left: -9999px; padding: 5px; }
+.tooltip-mark { position: absolute; top:5px; left:5px; background-color: #000;  }
+/* Rounded corners */
+.tooltip-mark { border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+/* Uncomment for shadow */
+.tooltip-mark { box-shadow: 0 0 5px #000000; -webkit-box-shadow: 0 0 5px #000000; -moz-box-shadow: 0 0 5px #000000; }
+.tooltip-arrow { display: none; position: absolute; width: 0; height: 0; line-height: 0; border: 5px dashed #000; }
+.tooltip-inner { position: relative; color: #FFF; padding: 5px 8px 4px 8px; text-align: center; }
+/* Rules to colour arrows */
+.tooltip-arrow-b { border-bottom-color: #000; }
+.tooltip-arrow-t { border-top-color: #000; }
+.tooltip-arrow-l { border-left-color: #000; }
+.tooltip-arrow-r { border-right-color: #000; }
+.tooltip-b .tooltip-arrow, .tooltip-t .tooltip-arrow,
+.tooltip-l .tooltip-arrow, .tooltip-r .tooltip-arrow { display: block; }
+.tooltip-b .tooltip-arrow { top: 0; left: 50%; margin-left: -5px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent; }
+.tooltip-br .tooltip-arrow { top: 0; left: 10px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent; }
+.tooltip-bl .tooltip-arrow { top: 0; right: 10px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent; }
+.tooltip-t .tooltip-arrow { bottom: 0; left: 50%; margin-left: -5px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
+.tooltip-tr .tooltip-arrow { bottom: 0; left: 10px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
+.tooltip-tl .tooltip-arrow { bottom: 0; right: 10px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
+.tooltip-l .tooltip-arrow { right: 0; top: 50%; margin-top: -5px; border-left-style: solid; border-right: none; border-top-color: transparent; border-bottom-color: transparent; }
+.tooltip-r .tooltip-arrow { left: 0; top: 50%; margin-top: -5px; border-right-style: solid; border-left: none; border-top-color: transparent; border-bottom-color: transparent; }
+
+
+.wrapper{ width:1000px; margin:0 auto; position:relative; clear:both; }
+.hidden{ display: none; }
+
+
+
+

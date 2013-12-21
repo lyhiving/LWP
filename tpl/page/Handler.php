@@ -33,6 +33,7 @@ abstract class Handler extends LWP_Page_Handler {
         return array_merge(parent::get_styles(),
             array(
                 APP_RES . 'assets/css/normalize.css',
+                APP_RES . 'assets/css/common.css',
             )
         );
     }
