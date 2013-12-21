@@ -44,6 +44,8 @@ class LWP_init {
 
         $this->copy_dir(APP_PATH.'/tpl/', APP_PATH.'/..');
 
+        Logger::instance()->info('app init ok!');
+
     }
 
     /**
