@@ -6,19 +6,22 @@
  * @version $Id$
  * @datetime 2013-12-21 18:24
  */
-// Prevent repeated loading
-if (defined('APP_PATH')) return 0;
-// admin path
+// app path
 define('APP_PATH', dirname(__FILE__));
 // include LWP
 include APP_PATH . '/LWP.php';
-
+// not cli mode
+if (!IS_CLI) {
+    header('HTTP/1.1 404 Not Found', true, 404);
+    die('<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL ' . $_SERVER['REQUEST_URI'] . ' was not found on this server.</p></body></html>');
+}
+/**
+ * Class LWP_init
+ */
 class LWP_init {
     private $app_config = '';
 
     function main() {
-        if (!IS_CLI) quit('<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL '.$this->get_uri().' was not found on this server.</p></body></html>', LOGGER_ERROR);
-
         $this->app_config = '    // Handler' . "\n";
         $this->app_config .= '    \'^(.+?)Handler$\' => APP_PATH . \'/page/$1.php\',' . "\n";
         $this->app_config .= '    // Lib' . "\n";
@@ -27,22 +30,22 @@ class LWP_init {
 
         Logger::instance()->info('app init ...');
 
-        mkdirs(APP_PATH.'/../conf/');
-        Logger::instance()->info('create floder: '.realpath(APP_PATH.'/../conf/'));
+        mkdirs(APP_PATH . '/../conf/');
+        Logger::instance()->info('create floder: ' . realpath(APP_PATH . '/../conf/'));
         // copy database.php
-        $database = file_get_contents(APP_PATH.'/conf/database.php');
+        $database = file_get_contents(APP_PATH . '/conf/database.php');
         $database = preg_replace('/(\*\s*@datetime\s*)[\d]{2,4}\-[\d]{1,2}\-[\d]{1,2}\s*[\d]{1,2}\:[\d]{1,2}/e', '"$1".date("Y-m-d H:i")', $database);
-        file_put_contents(APP_PATH.'/../conf/database.php', $database);
-        Logger::instance()->info('create file: '.realpath(APP_PATH.'/../conf/database.php'));
+        file_put_contents(APP_PATH . '/../conf/database.php', $database);
+        Logger::instance()->info('create file: ' . realpath(APP_PATH . '/../conf/database.php'));
         // copy common.php
 
-        $common = file_get_contents(APP_PATH.'/conf/common.php');
+        $common = file_get_contents(APP_PATH . '/conf/common.php');
         $common = preg_replace('/(\*\s*@datetime\s*)[\d]{2,4}\-[\d]{1,2}\-[\d]{1,2}\s*[\d]{1,2}\:[\d]{1,2}/e', '"$1".date("Y-m-d H:i")', $common);
         $common = preg_replace('/(\$config\[\'app_autoload\']\s*=\s*array\().+?(\)\;)/se', '\'$1\'."\n".$this->app_config."\n".\'$2\'', $common);
-        file_put_contents(APP_PATH.'/../conf/common.php', $common);
-        Logger::instance()->info('create file: '.realpath(APP_PATH.'/../conf/common.php'));
+        file_put_contents(APP_PATH . '/../conf/common.php', $common);
+        Logger::instance()->info('create file: ' . realpath(APP_PATH . '/../conf/common.php'));
 
-        $this->copy_dir(APP_PATH.'/tpl/', APP_PATH.'/..');
+        $this->copy_dir(APP_PATH . '/tpl/', APP_PATH . '/..');
 
         Logger::instance()->info('app init ok!');
 
@@ -57,9 +60,13 @@ class LWP_init {
     function copy_dir($source, $dest) {
         if ($dh = opendir($source)) {
             while (false !== ($file = readdir($dh))) {
-                if (substr($file,0,1) != '.') {
+                if (substr($file, 0, 1) != '.') {
                     $file_path = $source . '/' . $file;
-                    $dest_path = $dest . '/' . $file;
+                    if (substr($file, -4) == '.tpl') {
+                        $dest_path = $dest . '/' . substr($file, 0, -4);
+                    } else {
+                        $dest_path = $dest . '/' . $file;
+                    }
                     if (is_dir($file_path)) {
                         mkdirs($dest_path);
                         Logger::instance()->info('create floder: ' . realpath($dest_path));
