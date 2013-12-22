@@ -72,11 +72,15 @@ class LWP_init {
                         Logger::instance()->info('create floder: ' . realpath($dest_path));
                         $this->copy_dir($file_path, $dest_path);
                     } else {
+                        // 清除文件缓存
+                        clearstatcache();
                         // copy file
-                        $content = file_get_contents($file_path);
-                        $content = preg_replace('/(\*\s*@datetime\s*)[\d]{2,4}\-[\d]{1,2}\-[\d]{1,2}\s*[\d]{1,2}\:[\d]{1,2}/e', '"$1".date("Y-m-d H:i")', $content);
-                        file_put_contents($dest_path, $content);
-                        Logger::instance()->info('create file: ' . realpath($dest_path));
+                        if (filesize($file_path) > 0) {
+                            $content = file_get_contents($file_path);
+                            $content = preg_replace('/(\*\s*@datetime\s*)[\d]{2,4}\-[\d]{1,2}\-[\d]{1,2}\s*[\d]{1,2}\:[\d]{1,2}/e', '"$1".date("Y-m-d H:i")', $content);
+                            file_put_contents($dest_path, $content);
+                            Logger::instance()->info('create file: ' . realpath($dest_path));
+                        }
                     }
                 }
             }
