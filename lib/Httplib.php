@@ -7,7 +7,7 @@
 
 class Httplib {
     // user-agent
-    const HTTPLIB_USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0.2) Gecko/20100101 Firefox/6.0.2';
+    const HTTPLIB_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0';
     // begin time
     private $begin_time, $type = 'curl';
 
