@@ -277,7 +277,7 @@ function upf_handler_error(&$e) {
     if (in_array($code, array(LOGGER_WARN, LOGGER_ERROR, LOGGER_FATAL))) {
         $trace = $e->getTrace(); $error = $trace[0];
         $log = sprintf("%s\r\n", $message);
-        $log.= sprintf("[File]:\r\n\t%s (%d)\r\n", $error['file'], $error['line']);
+        $log.= sprintf("[File]:\r\n\t%s (%d)\r\n", hide_path($error['file']), $error['line']);
         $log.= sprintf("[Trace]:\r\n%s\r\n", $e->getStackTrace());
         // 调用Logger处理类
         $no_echo = Logger::instance()->log($log, $code);
