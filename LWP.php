@@ -616,7 +616,13 @@ final class App {
                 // 执行方式
                 $method = apply_filters('apprun_method', IS_CLI ? 'main' : strtolower($_SERVER['REQUEST_METHOD']));
                 // arguments
-                $arguments = $this->route_matches ? $this->route_matches : array();
+                if (IS_CLI) {
+                    global $argv;
+                    unset($argv[1]);
+                    $arguments = $argv;
+                } else {
+                    $arguments = $this->route_matches ? $this->route_matches : array();
+                }
                 // 类可以访问
                 if (($run_get_define = method_exists($handle, 'run_' . $method)) || ($get_define = method_exists($handle, $method))) {
                     $is_404 = false;
@@ -1464,9 +1470,15 @@ function iconvs($from, $to, $data) {
  */
 function clear_space($content){
     if (strlen($content)==0) return $content; $r = $content;
-    $r = str_replace(array(chr(9),chr(10),chr(13)),'',$r);
-    while (strpos($r,chr(32).chr(32))!==false || strpos($r,'&nbsp;')!==false) {
-        $r = str_replace(chr(32).chr(32),chr(32),str_replace('&nbsp;',chr(32),$r));
+    $r = str_replace(array(chr(9), chr(10), chr(13)), '', $r);
+    while (strpos($r, chr(32) . chr(32)) !== false || strpos($r, '&nbsp;') !== false) {
+        $r = str_replace(array(
+                '&nbsp;',
+                chr(32) . chr(32),
+            ),
+            chr(32),
+            $r
+        );
     }
     return $r;
 }
