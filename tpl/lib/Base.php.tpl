@@ -25,6 +25,6 @@ abstract class BaseLib extends LWP_Lib_Base {
      * @param int $errno
      */
     protected function error($error, $errno = 200) {
-        upf_error($error, $errno);
+        lwp_error($error, $errno);
     }
 }

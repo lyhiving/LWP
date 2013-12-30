@@ -13,7 +13,7 @@ class DB_SQLite3 extends DBQuery {
      */
     public function __construct($config) {
         if (!class_exists('SQLite3')) {
-            upf_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'SQLite3'),LOGGER_FATAL);
+            lwp_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'SQLite3'),LOGGER_FATAL);
         }
         if (!empty($config)) {
             $this->name = isset($config['name']) ? $config['name'] : $this->name;
@@ -36,11 +36,11 @@ class DB_SQLite3 extends DBQuery {
         if (error_reporting()==0 || $this->is_database($dbname)) {
             $this->conn = new SQLite3($dbname, $flags, null);
         } else {
-            upf_error(__('数据库不存在！'),LOGGER_FATAL);
+            lwp_error(__('数据库不存在！'),LOGGER_FATAL);
         }
         // 验证连接是否正确
         if ($this->conn->lastErrorCode() > 0) {
-            upf_error(sprintf(__('数据库链接错误：%s'), $this->conn->lastErrorMsg()),LOGGER_FATAL);
+            lwp_error(sprintf(__('数据库链接错误：%s'), $this->conn->lastErrorMsg()),LOGGER_FATAL);
         }
         // 设置10秒等待
         $this->conn->busyTimeout(1500);
@@ -71,7 +71,7 @@ class DB_SQLite3 extends DBQuery {
     public function query($sql){
         // 验证连接是否正确
         if (!is_object($this->conn)) {
-            upf_error(__('提供的参数不是一个有效的SQLite对象。'),LOGGER_ERROR);
+            lwp_error(__('提供的参数不是一个有效的SQLite对象。'),LOGGER_ERROR);
         }
         $args = func_get_args();
 
@@ -90,7 +90,7 @@ class DB_SQLite3 extends DBQuery {
         DBQuery::$query_count++;
         // 执行SQL
         if (!($result = $this->conn->$func($sql))) {
-            upf_error(sprintf(__('SQLite 查询错误：%s'),$sql."\r\n\t".$this->conn->lastErrorMsg()),LOGGER_ERROR);
+            lwp_error(sprintf(__('SQLite 查询错误：%s'),$sql."\r\n\t".$this->conn->lastErrorMsg()),LOGGER_ERROR);
         }
         // 查询正常
         else {

@@ -14,7 +14,7 @@ class DB_PDO_SQLite extends DBQuery {
      */
     public function __construct($config) {
         if (!extension_loaded('pdo_sqlite')) {
-            upf_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'PDO_SQLite'),LOGGER_FATAL);
+            lwp_error(sprintf(__('您的 PHP 似乎缺少所需的 %s 扩展。'), 'PDO_SQLite'),LOGGER_FATAL);
         }
         if (!empty($config)) {
             $this->name = isset($config['name']) ? $config['name'] : $this->name;
@@ -36,11 +36,11 @@ class DB_PDO_SQLite extends DBQuery {
         if (error_reporting()==0 || $this->is_database($dbname)) {
             $this->conn = new PDO(sprintf('%s:%s', $this->scheme, $dbname), null, null);
         } else {
-            upf_error(__('数据库不存在！'),LOGGER_FATAL);
+            lwp_error(__('数据库不存在！'),LOGGER_FATAL);
         }
         // 验证连接是否正确
         if ($this->errno() != 0) {
-            upf_error(sprintf(__('数据库链接错误：%s'), $this->error()),LOGGER_FATAL);
+            lwp_error(sprintf(__('数据库链接错误：%s'), $this->error()),LOGGER_FATAL);
         }
         // 设置字段模式
         $this->conn->exec("pragma short_column_names=ON;");
@@ -69,7 +69,7 @@ class DB_PDO_SQLite extends DBQuery {
     public function query($sql){
         // 验证连接是否正确
         if (!is_object($this->conn)) {
-            upf_error(__('提供的参数不是一个有效的SQLite对象。'),LOGGER_ERROR);
+            lwp_error(__('提供的参数不是一个有效的SQLite对象。'),LOGGER_ERROR);
         }
         $args = func_get_args();
 
@@ -89,7 +89,7 @@ class DB_PDO_SQLite extends DBQuery {
         // 执行SQL
         $result = $this->conn->$func($sql);
         if ($this->errno() != 0) {
-            upf_error(sprintf(__('SQLite 查询错误：%s'),$sql."\r\n\t".$this->error()),LOGGER_ERROR);
+            lwp_error(sprintf(__('SQLite 查询错误：%s'),$sql."\r\n\t".$this->error()),LOGGER_ERROR);
         }
         // 查询正常
         else {

@@ -298,9 +298,9 @@ class Httplib {
             $headers = $this->parse_header($headers);
         } else {
             if ( $curl_error = curl_error($handle) )
-                upf_error($curl_error, LOGGER_ERROR);
+                lwp_error($curl_error, LOGGER_ERROR);
             if ( in_array( curl_getinfo( $handle, CURLINFO_HTTP_CODE ), array(301, 302) ) )
-                upf_error(__('过多的重定向。'), LOGGER_WARN);
+                lwp_error(__('过多的重定向。'), LOGGER_WARN);
 
             $headers = array( 'headers' => array(), 'cookies' => array() );
             $the_body = '';
@@ -316,7 +316,7 @@ class Httplib {
             if ( $r['redirection']-- > 0 ) {
                 return $this->request($this->get_redirection_url($aurl, $headers['headers']['location']), $r);
             } else {
-                upf_error(__('过多的重定向。'), LOGGER_WARN);
+                lwp_error(__('过多的重定向。'), LOGGER_WARN);
             }
         }
         if (isset($headers['headers']['location'])) {
@@ -385,7 +385,7 @@ class Httplib {
         error_reporting($error_level);
                                                                                                                                 
         // 连接错误
-        if (false === $handle) upf_error(sprintf('%s: %s', $errno, $errstr), LOGGER_ERROR);
+        if (false === $handle) lwp_error(sprintf('%s: %s', $errno, $errstr), LOGGER_ERROR);
         // 连接时间超过超时时间，暂时禁用当前方法
         $elapse_delay = ($end_delay - $start_delay) > $r['timeout'];
         if (true === $elapse_delay) {
@@ -464,7 +464,7 @@ class Httplib {
 
         // 响应代码是400范围内？
         if ((int)$headers['response']['code'] >= 400 && (int)$headers['response']['code'] < 500)
-            upf_error($headers['response']['code'].': '.$headers['response']['message'], LOGGER_WARN);
+            lwp_error($headers['response']['code'].': '.$headers['response']['message'], LOGGER_WARN);
 
         // 重定向到新的位置
         if ('HEAD' != $r['method'] && $r['redirection']>0 && isset($headers['headers']['location'])) {
@@ -473,7 +473,7 @@ class Httplib {
                 unset($r['body'], $r['headers']['Content-Type'], $r['headers']['Content-Length']);
                 return $this->request($this->get_redirection_url($aurl, $headers['headers']['location']), $r);
             } else {
-                upf_error(__('过多的重定向。'), LOGGER_WARN);
+                lwp_error(__('过多的重定向。'), LOGGER_WARN);
             }
         }
         if (isset($headers['headers']['location'])) {

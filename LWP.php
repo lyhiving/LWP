@@ -179,8 +179,8 @@ function &get_conn() {
  * @return void
  */
 function ob_block_start() {
-    global $upf_tmp_content;
-    $upf_tmp_content = ob_get_contents();
+    global $lwp_tmp_content;
+    $lwp_tmp_content = ob_get_contents();
     ob_clean(); ob_start();
 }
 /**
@@ -191,10 +191,10 @@ function ob_block_start() {
  * @return array|null
  */
 function ob_get_content($tag, $join = "\r\n") {
-    global $upf_ob_contents;
-    if (isset($upf_ob_contents[$tag])) {
-        array_multisort($upf_ob_contents[$tag]['order'], SORT_DESC, $upf_ob_contents[$tag]['content']);
-        return implode($join, $upf_ob_contents[$tag]['content']);
+    global $lwp_ob_contents;
+    if (isset($lwp_ob_contents[$tag])) {
+        array_multisort($lwp_ob_contents[$tag]['order'], SORT_DESC, $lwp_ob_contents[$tag]['content']);
+        return implode($join, $lwp_ob_contents[$tag]['content']);
     }
     return null;
 }
@@ -206,13 +206,13 @@ function ob_get_content($tag, $join = "\r\n") {
  * @return array|null
  */
 function ob_block_end($tag, $order = 0) {
-    global $upf_ob_contents, $upf_tmp_content;
+    global $lwp_ob_contents, $lwp_tmp_content;
     $content = ob_get_contents(); ob_clean();
-    if (!isset($upf_ob_contents[$tag])) $upf_ob_contents[$tag] = array();
-    $upf_ob_contents[$tag]['content'][] = $content;
-    $upf_ob_contents[$tag]['order'][] = $order;
-    if ($upf_tmp_content) {
-        echo $upf_tmp_content; $upf_tmp_content = '';
+    if (!isset($lwp_ob_contents[$tag])) $lwp_ob_contents[$tag] = array();
+    $lwp_ob_contents[$tag]['content'][] = $content;
+    $lwp_ob_contents[$tag]['order'][] = $order;
+    if ($lwp_tmp_content) {
+        echo $lwp_tmp_content; $lwp_tmp_content = '';
     }
     return ob_get_content($tag);
 }
@@ -248,7 +248,7 @@ function load_config($file, $super=null) {
  * @param int $errno
  * @return void
  */
-function upf_error($error, $errno) {
+function lwp_error($error, $errno) {
     if (error_reporting() == 0) return false;
     throw new LWP_Exception($error, $errno);
 }
@@ -269,7 +269,7 @@ function quit($data = null, $errno = LOGGER_INFO) {
  * @param LWP_Exception $e
  * @return void
  */
-function upf_handler_error(&$e) {
+function lwp_handler_error(&$e) {
     $code = $e->getCode();
     $data = $e->getData();
     $message = $e->getMessage();
@@ -312,7 +312,7 @@ function upf_handler_error(&$e) {
  * @return bool
  */
 function add_filter($tag, $function, $priority = 10, $accepted_args = 1) {
-    global $upf_filter; static $filter_id_count = 0;
+    global $lwp_filter; static $filter_id_count = 0;
     if (is_string($function)) {
         $idx = $function;
     } else {
@@ -328,13 +328,13 @@ function add_filter($tag, $function, $priority = 10, $accepted_args = 1) {
                 $idx = spl_object_hash($function[0]) . $function[1];
             } else {
                 $idx = get_class($function[0]) . $function[1];
-                if (!isset($function[0]->upf_filter_id)) {
-                    $idx .= isset($upf_filter[$tag][$priority]) ? count((array)$upf_filter[$tag][$priority])
+                if (!isset($function[0]->lwp_filter_id)) {
+                    $idx .= isset($lwp_filter[$tag][$priority]) ? count((array)$lwp_filter[$tag][$priority])
                             : $filter_id_count;
-                    $function[0]->upf_filter_id = $filter_id_count;
+                    $function[0]->lwp_filter_id = $filter_id_count;
                     ++$filter_id_count;
                 } else {
-                    $idx .= $function[0]->upf_filter_id;
+                    $idx .= $function[0]->lwp_filter_id;
                 }
             }
         } else if (is_string($function[0])) {
@@ -342,7 +342,7 @@ function add_filter($tag, $function, $priority = 10, $accepted_args = 1) {
             $idx = $function[0] . $function[1];
         }
     }
-    $upf_filter[$tag][$priority][$idx] = array('function' => $function, 'accepted_args' => $accepted_args);
+    $lwp_filter[$tag][$priority][$idx] = array('function' => $function, 'accepted_args' => $accepted_args);
     return true;
 }
 /**
@@ -353,26 +353,26 @@ function add_filter($tag, $function, $priority = 10, $accepted_args = 1) {
  * @return mixed
  */
 function apply_filters($tag, $value) {
-    global $upf_filter;
+    global $lwp_filter;
 
-    if (!isset($upf_filter[$tag])) {
+    if (!isset($lwp_filter[$tag])) {
         return $value;
     }
 
-    ksort($upf_filter[$tag]);
+    ksort($lwp_filter[$tag]);
 
-    reset($upf_filter[$tag]);
+    reset($lwp_filter[$tag]);
 
     $args = func_get_args();
 
     do {
-        foreach ((array)current($upf_filter[$tag]) as $self)
+        foreach ((array)current($lwp_filter[$tag]) as $self)
             if (!is_null($self['function'])) {
                 $args[1] = $value;
                 $value = call_user_func_array($self['function'], array_slice($args, 1, (int)$self['accepted_args']));
             }
 
-    } while (next($upf_filter[$tag]) !== false);
+    } while (next($lwp_filter[$tag]) !== false);
 
     return $value;
 }
@@ -651,7 +651,7 @@ final class App {
                 }
             }
         } catch (Exception $e) {
-            upf_handler_error($e);
+            lwp_handler_error($e);
         }
     }
 
@@ -2049,23 +2049,23 @@ function file_mime_type($filename) {
 
 if (!function_exists('json_encode')) {
     function json_encode($string) {
-        global $upf_json;
-        if (get_class($upf_json) != 'Services_JSON') {
-            $upf_json = new Services_JSON();
+        global $lwp_json;
+        if (get_class($lwp_json) != 'Services_JSON') {
+            $lwp_json = new Services_JSON();
         }
-        return $upf_json->encode($string);
+        return $lwp_json->encode($string);
     }
 }
 
 if (!function_exists('json_decode')) {
     function json_decode($string, $assoc_array = false) {
-        global $upf_json;
+        global $lwp_json;
 
-        if (get_class($upf_json) != 'Services_JSON') {
-            $upf_json = new Services_JSON();
+        if (get_class($lwp_json) != 'Services_JSON') {
+            $lwp_json = new Services_JSON();
         }
 
-        $res = $upf_json->decode($string);
+        $res = $lwp_json->decode($string);
         if ($assoc_array)
             $res = _json_decode_object_helper($res);
         return $res;
