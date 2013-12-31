@@ -1017,6 +1017,16 @@ function is_accept_json() {
 function is_assoc($array) {
     return (is_array($array) && (0 !== count(array_diff_key($array, array_keys(array_keys($array)))) || count($array)==0));
 }
+
+/**
+ * 判断是否为json格式
+ *
+ * @param $text
+ * @return bool
+ */
+function is_jsoned($text) {
+    return preg_match('/^("(\\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $text);
+}
 /**
  * 检查值是否已经序列化
  *

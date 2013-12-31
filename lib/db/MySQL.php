@@ -76,8 +76,9 @@ class DB_MySQL extends DBQuery {
         }
         // MYSQL数据库的设置
         if (version_compare($this->version(), '4.1', '>=')) {
-            if (mysql_client_encoding($this->conn) != 'utf8')
+            if (mysql_client_encoding($this->conn) != 'utf8') {
                 mysql_query("SET NAMES utf8;", $this->conn);
+            }
             if(version_compare($this->version(), '5.0.1', '>' )) {
                 mysql_query("SET sql_mode='';", $this->conn);
             }

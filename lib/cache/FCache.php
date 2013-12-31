@@ -55,7 +55,7 @@ class FCache {
             if ($data === null) $data = new NOOPClass();
             // 判断是否需要序列化
             if (!is_scalar($data)) {
-                $data = serialize($data);
+                $data = json_encode($data);
             }
             fwrite($fp, $data);
             if ($mqr) set_magic_quotes_runtime($mqr);
@@ -98,8 +98,8 @@ class FCache {
                 flock($fp, LOCK_UN);
                 fclose($fp);
 
-                if (is_serialized($data)) {
-                    $data = unserialize($data);
+                if (is_jsoned($data)) {
+                    $data = json_decode($data, true);
                 }
                 // 检查文件是否过期
                 $last_time = filemtime($hash_file);

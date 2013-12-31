@@ -71,8 +71,9 @@ class DB_MySQLi extends DBQuery {
         }
         // MYSQL数据库的设置
         if (version_compare($this->version(), '4.1', '>=')) {
-            if (mysqli_character_set_name($this->conn) != 'utf8')
+            if (mysqli_character_set_name($this->conn) != 'utf8') {
                 mysqli_query($this->conn, "SET NAMES utf8;");
+            }
             if (version_compare($this->version(), '5.0.1', '>' )) {
                 mysqli_query($this->conn, "SET sql_mode='';");
             }

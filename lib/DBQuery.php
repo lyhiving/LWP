@@ -346,7 +346,7 @@ abstract class DBQuery {
             }
             // 需要序列化
             else {
-                $value = serialize($value);
+                $value = json_encode($value);
             }
         }
         return $value;
