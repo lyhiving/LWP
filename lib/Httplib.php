@@ -55,7 +55,7 @@ class Httplib {
     }
     /**
      * 强制使用curl
-     * 
+     *
      * @return void
      */
     public function use_curl() {
@@ -63,7 +63,7 @@ class Httplib {
     }
     /**
      * 强制使用socket
-     * 
+     *
      * @return void
      */
     public function use_socket() {
@@ -88,7 +88,7 @@ class Httplib {
             'body'        => null,
             'httpversion' => '1.1',
         );
-                                                                                                                                
+
         $r = array_merge( $defaults, $options );
         if (is_null($r['headers'])) $r['headers'] = array();
 
@@ -119,11 +119,11 @@ class Httplib {
 
         // Construct Cookie: header if any cookies are set
         $this->build_cookie_header( $r );
-                                                                                                                                
+
         // 判断是否支持gzip
         if (function_exists('gzuncompress') || function_exists('gzdeflate') || function_exists('gzinflate'))
             $r['headers']['Accept-Encoding'] = $this->accept_encoding();
-                                                                                                                                
+
         // 判断数据处理类型
         if (empty($r['body'])) {
             if(($r['method'] == 'POST') && !isset($r['headers']['Content-Length'])) {
@@ -176,7 +176,7 @@ class Httplib {
     }
     /**
      * curl 发送之前的处理
-     * 
+     *
      * @param resource $handle
      * @param string $header
      * @return int
@@ -211,14 +211,14 @@ class Httplib {
             }
             Logger::instance()->debug(sprintf("Use Proxy: [%s:%s]", $this->proxy_host, $this->proxy_port));
         }
-                                                                                                                                
+
 
         // CURLOPT_TIMEOUT and CURLOPT_CONNECTTIMEOUT expect integers.  Have to use ceil since
         // a value of 0 will allow an ulimited timeout.
         $timeout = (int) ceil( $r['timeout'] );
         curl_setopt( $handle, CURLOPT_CONNECTTIMEOUT, $timeout );
         curl_setopt( $handle, CURLOPT_TIMEOUT, $timeout );
-                                                                                                                                
+
         curl_setopt( $handle, CURLINFO_HEADER_OUT, true );
         curl_setopt( $handle, CURLOPT_HEADERFUNCTION, array(&$this,'curl_before_send') );
 
@@ -268,15 +268,15 @@ class Httplib {
 
         // 提交
         $str_response = curl_exec( $handle );
-                                                                                                                                
+
         Logger::instance()->debug(sprintf("%01.6f %s Request: %s \n%s%s", microtime(true) - $this->begin_time, $r['method'], $url, curl_getinfo($handle, CURLINFO_HEADER_OUT), $r['body']));
-                                                                                                                                
+
         // We don't need to return the body, so don't. Just execute request and return.
         if ( ! $r['blocking'] ) {
             curl_close( $handle );
             return array('headers' => array(), 'body' => '', 'response' => array('code' => false, 'message' => false), 'cookies' => array());
         }
-                                                                                                                                
+
         // 重置计时器
         $this->begin_time = microtime(true);
         // 获取数据
@@ -294,7 +294,7 @@ class Httplib {
             }
             // 记录日志
             Logger::instance()->debug(sprintf("%01.6f %s Response: %s \n%s", microtime(true) - $this->begin_time, $r['method'], $url, $headers));
-                                                                                                                                                                                                
+
             $headers = $this->parse_header($headers);
         } else {
             if ( $curl_error = curl_error($handle) )
@@ -308,7 +308,7 @@ class Httplib {
         $response = array();
         $response['code']    = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
         $response['message'] = self::status_desc($response['code']);
-                                                                                                                                
+
         curl_close( $handle );
 
         // When running under safe mode, redirection is disabled above. Handle it manually.
@@ -347,7 +347,7 @@ class Httplib {
             'cookies'   => $headers['cookies'],
         );
     }
-                                                                
+
     private $sock_hosts = null;
     /**
      * fsockopen
@@ -383,7 +383,7 @@ class Httplib {
         }
         $end_delay = time();
         error_reporting($error_level);
-                                                                                                                                
+
         // 连接错误
         if (false === $handle) lwp_error(sprintf('%s: %s', $errno, $errstr), LOGGER_ERROR);
         // 连接时间超过超时时间，暂时禁用当前方法
@@ -421,7 +421,7 @@ class Httplib {
         // referer
         if (!isset($r['headers']['referer']) && !isset($r['headers']['Referer']))
             $str_headers.= sprintf("Referer: %s\r\n",$aurl['referer']);
-                                                                                                                                
+
         // connection
         if (!isset($r['headers']['connection']))
             $str_headers.= "Connection: close\r\n";
@@ -432,10 +432,10 @@ class Httplib {
 
         // 提交
         fwrite($handle, $str_headers);
-                                                                                                                                
+
         // 记录日志
         Logger::instance()->debug(sprintf("%01.6f %s Request: %s \n%s", microtime(true) - $this->begin_time, $r['method'], $url, $str_headers));
-                                                                                                                                
+
         // 非阻塞模式
         if (!$r['blocking']) {
             fclose($handle);
@@ -448,15 +448,15 @@ class Httplib {
         while (!feof($handle)) {
             $str_response .= fread($handle, 4096);
         }
-                                                                                                                                
+
         fclose($handle);
-        
-        
+
+
 
         // 处理服务器返回的结果
         $response = explode("\r\n\r\n", $str_response, 2);
         $process  = array('headers' => isset($response[0]) ? $response[0] : array(), 'body' => isset($response[1]) ? $response[1] : '');
-                                                                                                                                
+
         // 记录日志
         Logger::instance()->debug(sprintf("%01.6f %s Response: %s \n%s", microtime(true) - $this->begin_time, $r['method'], $url, $process['headers']));
         // 处理headers
@@ -479,7 +479,7 @@ class Httplib {
         if (isset($headers['headers']['location'])) {
             $headers['headers']['location'] = $this->get_redirection_url($aurl, $headers['headers']['location']);
         }
-        
+
 
         // If the body was chunk encoded, then decode it.
         if (!empty($process['body']) && isset($headers['headers']['transfer-encoding']) && 'chunked' == $headers['headers']['transfer-encoding'])
@@ -490,7 +490,7 @@ class Httplib {
             $process['body'] = $this->decompress( $process['body'] );
             error_reporting($error_level);
         }
-                                                                                                                                
+
         // 自动编码转换
         $get_charset = null;
         if (preg_match("/<meta[^>]+charset\s*=\s*[\"']?([^\"']+)/i", $process['body'], $match)) {
@@ -519,9 +519,9 @@ class Httplib {
     private function build_cookie_header( &$r ) {
         if ( ! empty($r['cookies']) ) {
             $cookies_header = '';
-            foreach ( (array) $r['cookies'] as $cookie ) {
-                if (!empty($cookie['name']) && !empty($cookie['value'])) {
-                    $cookies_header .= $cookie['name'] . '=' . urlencode( $cookie['value'] ) . '; ';
+            foreach ((array)$r['cookies'] as $name => $value) {
+                if (strlen($name) > 0 && strlen($value) > 0) {
+                    $cookies_header .= $name . '=' . urlencode($value) . '; ';
                 }
             }
             $cookies_header = substr( $cookies_header, 0, -2 );
